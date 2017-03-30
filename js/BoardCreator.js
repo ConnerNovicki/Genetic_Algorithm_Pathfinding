@@ -4,6 +4,8 @@ var Cell = function(x, y, cellsize) {
   this.cellsize = cellsize;
   this.visited = false;
   this.walls = [true, true, true, true];
+
+  this.parent = null;
 }
 
 Cell.prototype.removeWall = function(wall) {
@@ -46,10 +48,17 @@ var BoardCreator = function(cols, rows, cellsize) {
   }
 
   this.currentCell = this.cells[0];
+  this.endCell = this.cells[this.cells.length - 1];
 }
 
 BoardCreator.prototype.getCellAt = function(x, y) {
   return this.cells[y * this.cols + x];
+}
+
+BoardCreator.prototype.markAllCellsUnvisited = function() {
+  this.cells.forEach(function(c) {
+    c.visited = false;
+  });
 }
 
 BoardCreator.prototype.getNeighborCell = function(x, y, side) {
@@ -74,6 +83,15 @@ BoardCreator.prototype.drawCells = function() {
     else c.draw("grey");
   });
   this.currentCell.draw("red");
+}
+
+BoardCreator.prototype.drawPath = function(path) {
+  for (var i = 0; i < path.length; i++) {
+    var [x, y] = path[i];
+    this.getCellAt(x, y).draw("pink");
+  }
+  this.getCellAt(0, 0).draw("green");
+  this.endCell.draw("red");
 }
 
 BoardCreator.prototype.validCell = function(x, y) {
@@ -143,5 +161,69 @@ BoardCreator.prototype.run = function() {
   else {
     // We are done
     this.done = true;
+  }
+}
+
+BoardCreator.prototype.findShortestPath = function(x1, y1) {
+
+  var [x2, y2] = [this.endCell.x, this.endCell.y];
+
+  var getOpenSides = function(cell) {
+    var sides = [];
+    cell.walls.forEach(function(c, ind){
+      if (!c) sides.push(ind);
+    });
+    return sides;
+  }
+
+  var setParent = function(children, parent) {
+    children.forEach(function(c) {
+      c.parent = parent;
+    });
+  }
+
+  var pathForCell = function(cell) {
+    var path = [];
+    path.push([cell.x, cell.y]);
+    while (true){
+      if (cell.x == x1 && cell.y == y1) {
+        return path;
+      }
+      cell = cell.parent;
+      path.push([cell.x, cell.y]);
+    }
+  }
+
+  this.markAllCellsUnvisited();
+  var currCell = this.getCellAt(x1, y1);
+  var sides = getOpenSides(currCell);
+  var children = [];
+  for (var i = 0; i < sides.length; i++) {
+    children.push(this.getNeighborCell(currCell.x, currCell.y, sides[i]));
+  }
+  var queue = [];
+  children.forEach(function(c) {
+    queue.push(c);
+  });
+
+  setParent(children, currCell);
+
+  while (queue.length > 0) {
+    currCell = queue[0];
+    currCell.visited = true;
+    queue.splice(0, 1);
+    if (currCell.x == x2 && currCell.y == y2) {
+      return pathForCell(currCell);
+    }
+    sides = getOpenSides(currCell);
+    children = [];
+    for (var i = 0; i < sides.length; i++) {
+      var child = this.getNeighborCell(currCell.x, currCell.y, sides[i]);
+      if (!child.visited) children.push(child);
+    }
+    setParent(children, currCell);
+    children.forEach(function(c) {
+      queue.push(c);
+    });
   }
 }

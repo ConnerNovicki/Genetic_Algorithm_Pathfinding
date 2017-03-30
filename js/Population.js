@@ -1,9 +1,9 @@
-function Vehicle(cellsize) {
+function Vehicle(cellsize, max_length) {
   this.x = 0;
   this.y = 0;
   this.cellsize = cellsize;
   this.moves = [];
-  this.MAX_LENGTH = 100;
+  this.MAX_LENGTH = max_length;
   this.ind = 0;
   this.alive = true;
   this.fitness = 0;
@@ -12,8 +12,15 @@ function Vehicle(cellsize) {
   this.mutationRate = 0.01;
 }
 
-Vehicle.prototype.calculateFitness = function() {
-  this.fitness = this.maxDistance;
+Vehicle.prototype.calculateFitness = function(goalMoves) {
+  var fit = 0;
+  for (var i = 0; i < goalMoves.length; i++) {
+    if (this.moves[i] == goalMoves[i]) {
+      fit++;
+    }
+  }
+  //console.log(fit);
+  this.fitness = fit;
 }
 
 Vehicle.prototype.randomize = function() {
@@ -71,7 +78,7 @@ Vehicle.prototype.mutate = function() {
   }
 }
 
-function Population(size, cellsize) {
+function Population(size, cellsize, shortestPath) {
   this.vehicles = [];
   this.size = size;
   this.cellsize = cellsize;
@@ -79,11 +86,13 @@ function Population(size, cellsize) {
   this.currVehicle = null;
   this.currVehicleIndex = 0;
   this.totalFitness = 0;
+  this.goalPath = shortestPath;
+  this.max_length = this.goalPath.length;
 }
 
 Population.prototype.randomize = function() {
   for (var i = 0; i < this.size; i++) {
-    var v = new Vehicle(this.cellsize);
+    var v = new Vehicle(this.cellsize, this.max_length);
     v.randomize();
     this.vehicles.push(v);
   }
@@ -130,8 +139,9 @@ Population.prototype.geneticAlgorithm = function() {
 
 Population.prototype.calculateFitness = function() {
   var totalFitness = 0;
+  var goal = this.goalPath;
   this.vehicles.forEach(function(v) {
-    v.calculateFitness();
+    v.calculateFitness(goal);
     totalFitness += v.fitness;
   });
   this.totalFitness = totalFitness;
@@ -166,13 +176,12 @@ Population.prototype.getParents = function() {
   if (ind1 == -1) ind1 = 0;
   if (ind2 == -1) ind2 = 0;
 
-  console.log(ind1, ind2);
   return [this.vehicles[ind1], this.vehicles[ind2]];
 }
 
 Population.prototype.crossover = function(moves1, moves2) {
   var m = [];
-  var cpoint = Math.floor(Math.random() * moves1.length);
+  //var cpoint = Math.floor(Math.random() * moves1.length);
 
   if (Math.random() > 0.5) {
     var temp = moves1;
@@ -181,7 +190,10 @@ Population.prototype.crossover = function(moves1, moves2) {
   }
 
   for (var i = 0; i < moves1.length; i++) {
-    if (i < cpoint) m.push(moves1[i]);
+    // if (i < cpoint) m.push(moves1[i]);
+    // else m.push(moves2[i]);
+
+    if (Math.random() > 0.5) m.push(moves1[i]);
     else m.push(moves2[i]);
   }
   return m;
@@ -193,14 +205,15 @@ Population.prototype.mate = function() {
 
   // Elitism
   var best = this.vehicles[0];
-  var v = new Vehicle(this.cellsize);
+  console.log(best.fitness);
+  var v = new Vehicle(this.cellsize, this.max_length);
   v.setMoves(best.moves);
   newVehicles.push(v);
 
   for (var i = 1; i < this.size; i++) {
     var [p1, p2] = this.getParents();
     var m = this.crossover(p1.moves, p2.moves);
-    v = new Vehicle(this.cellsize);
+    v = new Vehicle(this.cellsize, this.max_length);
     v.setMoves(m);
     v.mutate();
     newVehicles.push(v);
