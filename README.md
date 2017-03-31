@@ -1,4 +1,4 @@
-#Maze Generation + Breadth-First Search + Genetic Algorithm
+# Maze Generation + Breadth-First Search + Genetic Algorithm
 
 This program has three sections.
 
