@@ -5,14 +5,14 @@ var board;
 var population;
 var shortestPath = [];
 
-var rows = 10;
-var cols = 10;
+var rows = 5;
+var cols = 5;
 var cellsize = 30;
 
 var state = 1;
 var count = 0;
 
-var POP_SIZE = 30;
+var POP_SIZE = 50;
 
 
 function setup() {
@@ -79,6 +79,7 @@ function findShortestPath() {
   population = new Population(POP_SIZE, cellsize, shortestDirections);
   population.randomize();
   population.setBoard(board);
+  generation = 0;
   state = 3;
 }
 
@@ -87,4 +88,5 @@ function geneticAlgorithm() {
   boardCreator.drawCells();
   boardCreator.drawPath(shortestPath);
   population.draw();
+  generation++;
 }

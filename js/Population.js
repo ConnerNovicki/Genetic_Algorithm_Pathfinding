@@ -9,7 +9,7 @@ function Vehicle(cellsize, max_length) {
   this.fitness = 0;
   this.maxDistance = 0;
   this.lastMove = -1;
-  this.mutationRate = 0.01;
+  this.mutationRate = 0.05;
 }
 
 Vehicle.prototype.calculateFitness = function(goalMoves) {
@@ -19,8 +19,8 @@ Vehicle.prototype.calculateFitness = function(goalMoves) {
       fit++;
     }
   }
-  //console.log(fit);
   this.fitness = fit;
+  this.fitness += this.maxDistance * 2;
 }
 
 Vehicle.prototype.randomize = function() {
@@ -72,7 +72,7 @@ Vehicle.prototype.draw = function() {
 
 Vehicle.prototype.mutate = function() {
   for (var i = 0; i < this.moves.length; i++) {
-    if (Math.random() > this.mutationRate) {
+    if (Math.random() < this.mutationRate) {
       this.moves[i] = Math.floor(Math.random() * 4);
     }
   }
@@ -88,6 +88,7 @@ function Population(size, cellsize, shortestPath) {
   this.totalFitness = 0;
   this.goalPath = shortestPath;
   this.max_length = this.goalPath.length;
+  this.generation = 0;
 }
 
 Population.prototype.randomize = function() {
@@ -120,6 +121,8 @@ Population.prototype.update = function() {
   else {
     if (this.currVehicleIndex == this.size - 1) {
       this.geneticAlgorithm();
+      this.generation++;
+      console.log("Generation: " + this.generation);
     }
     else {
       this.currVehicleIndex++;
@@ -205,7 +208,6 @@ Population.prototype.mate = function() {
 
   // Elitism
   var best = this.vehicles[0];
-  console.log(best.fitness);
   var v = new Vehicle(this.cellsize, this.max_length);
   v.setMoves(best.moves);
   newVehicles.push(v);
