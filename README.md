@@ -1,4 +1,4 @@
-#Maze Generation + Breadth-First Search + Genetic Algorithm
+# Maze Generation + Breadth-First Search + Genetic Algorithm
 
 ![alt text](pathfind.PNG)
 
@@ -27,3 +27,7 @@ TODO:
 Some optimizations are needed as well as interface. The process takes too long to
 run. I am going to change it to only show the most successful vehicle of every
 generation.
+
+NEED TO fix local maxima. Doesn't work properly yet. All help would be appreciated.
+
+RUN THE PROGRAM: https://connernovicki.github.io/Genetic_Algorithm_Pathfinding/
