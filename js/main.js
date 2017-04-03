@@ -5,8 +5,8 @@ var board;
 var population;
 var shortestPath = [];
 
-var rows = 5;
-var cols = 5;
+var rows = 15;
+var cols = 15;
 var cellsize = 30;
 
 var state = 1;

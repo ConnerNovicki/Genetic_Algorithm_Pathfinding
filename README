@@ -1,5 +1,7 @@
 #Maze Generation + Breadth-First Search + Genetic Algorithm
 
+![alt text](pathfind.PNG)
+
 This program has three sections.
 
 1. Maze generation:

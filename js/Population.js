@@ -20,7 +20,7 @@ Vehicle.prototype.calculateFitness = function(goalMoves) {
     }
   }
   this.fitness = fit;
-  this.fitness += this.maxDistance * 2;
+  this.fitness += this.maxDistance * 0.7;
 }
 
 Vehicle.prototype.randomize = function() {
